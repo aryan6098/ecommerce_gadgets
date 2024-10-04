@@ -4,15 +4,14 @@ import { Link, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
 import { useCartContext } from "../context/cart";
+import { useDispatch, useSelector } from "react-redux";
+import { setSelectedCategory } from "../store/header";
+const Header = () => {
+  const cart = useSelector((state) => state.cart);
+  const { selectedCategory, defaultValue }  = useSelector(state => state.header);
 
-const Header = ({setSelectedCategory}) => {
-
-
-
-
-  const {cart} = useCartContext();
-
-
+  const dispatch = useDispatch();
+  // const {cart} = useCartContext();
   // const [data, setData] = useState([]);
 
   // useEffect(() => {
@@ -21,25 +20,24 @@ const Header = ({setSelectedCategory}) => {
   //     .then((res) => res.json())
   //     .then((json) => setData(json));
   // }, []);
-  const { category } = useParams();
+  // const { category } = useParams();
+  const value = useParams();
   const { data, loading, loadError } = useApi(
     "https://fakestoreapi.com/products/categories"
   );
-
-  const selectedCategory = category || data[0];
+  const selectedCategoryVal = selectedCategory || defaultValue;
   useEffect(() => {
     if (data.length > 0) {
-      setSelectedCategory(selectedCategory);
+      dispatch(setSelectedCategory(selectedCategoryVal));
     }
   }, [data, setSelectedCategory]);
-  const totalItem = () =>{
+  const totalItem = () => {
     let total = 0;
-    for(let obj in cart) {
-      total += obj.quantity;
+    for (let obj in cart) {
+      total += cart[obj].quantity;
     }
     return total;
-  }
-
+  };
   if (loading) return <div>Fetching Categories</div>;
   else if (loadError) return <div>Oops...Please try again </div>;
   else
@@ -51,9 +49,9 @@ const Header = ({setSelectedCategory}) => {
             key={category}
             className={
               "header-item " +
-              (category === selectedCategory ? "header-item-selected" : "")
+              (category === selectedCategoryVal ? "header-item-selected" : "")
             }
-            onClick={() => setSelectedCategory(category)}
+            onClick={() =>setSelectedCategory(category)}
           >
             {category}
           </Link>
